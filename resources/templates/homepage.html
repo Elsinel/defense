@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书海漫游 - 发现好书</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<!-- 主页面 -->
+<section class="main-page">
+    <!-- 头部导航 -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="brand">
+                    <i class="fas fa-book"></i>
+                    <h1>书海漫游</h1>
+                </div>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="搜索书名、作者或关键词...">
+                </div>
+                <div class="nav-links">
+                    <a href="/user/home" id="homeLink"><i class="fas fa-home"></i> 首页</a>
+                    <a href="/user/favorites" id="favoritesLink"><i class="fas fa-heart"></i> 收藏夹</a>
+                    <a href="/user/index" id="logoutLink"><i class="fas fa-sign-out-alt"></i> 退出</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 轮播图区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="carousel" id="carouselContainer">
+                <!-- 动态生成轮播图 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 图书分类 -->
+    <main class="container">
+        <h2 class="section-title">近期浏览</h2>
+        <div class="book-grid" id="recentlyViewedGrid">
+            <!-- 近期浏览图书将通过JS动态生成 -->
+            <div class="loading-placeholder">加载中...</div>
+        </div>
+
+        <h2 class="section-title">评分最高图书</h2>
+        <div class="book-grid" id="highestRatedGrid">
+            <!-- 评分最高图书将通过JS动态生成 -->
+            <div class="loading-placeholder">加载中...</div>
+        </div>
+
+        <h2 class="section-title">评价次数最多</h2>
+        <div class="book-grid" id="mostReadGrid">
+            <!-- 阅读次数最多图书将通过JS动态生成 -->
+            <div class="loading-placeholder">加载中...</div>
+        </div>
+    </main>
+
+
+    <!-- 知识图谱按钮 -->
+    <div class="container text-center">
+        <button id="showKnowledgeGraph" class="btn">
+            <i class="fas fa-project-diagram"></i> 查看图书知识图谱
+        </button>
+    </div>
+
+    <!-- 知识图谱容器 -->
+    <div class="container">
+        <div class="knowledge-graph-container" id="knowledgeGraph" style="display:none;">
+            <div class="graph-tooltip" id="graphTooltip">
+                <img class="tooltip-cover" src="" alt="图书封面">
+                <div class="tooltip-content">
+                    <div class="tooltip-title"></div>
+                    <div class="tooltip-meta"></div>
+                    <div class="tooltip-tags"></div>
+                    <div class="tooltip-intro"></div>
+                </div>
+            </div>
+            <div class="graph-controls">
+                <button id="resetGraph">重置视图</button>
+                <button id="zoomIn">放大</button>
+                <button id="zoomOut">缩小</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>关于我们</h3>
+                    <p>书海漫游致力于为读者提供最好的阅读体验，发现值得阅读的好书，分享阅读的乐趣。</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-weibo"></i></a>
+                        <a href="#"><i class="fab fa-qq"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>热门分类</h3>
+                    <a href="#">文学小说</a>
+                    <a href="#">科幻奇幻</a>
+                    <a href="#">历史传记</a>
+                    <a href="#">心理自助</a>
+                    <a href="#">经济管理</a>
+                </div>
+                <div class="footer-column">
+                    <h3>帮助中心</h3>
+                    <a href="#">账号问题</a>
+                    <a href="#">会员服务</a>
+                    <a href="#">阅读指南</a>
+                    <a href="#">联系我们</a>
+                </div>
+                <div class="footer-column">
+                    <h3>联系我们</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 北京市海淀区中关村大街1号</p>
+                    <p><i class="fas fa-phone"></i> 400-123-4567</p>
+                    <p><i class="fas fa-envelope"></i> contact@bookvoyage.com</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 书海漫游 BookVoyage. 保留所有权利</p>
+            </div>
+        </div>
+    </footer>
+</section>
+
+
+<script>
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserKnowledgeGraph();
+    });
+    /**
+     * 加载最近浏览图书
+     */
+    function loadUserKnowledgeGraph() {
+        // 知识图谱按钮
+        document.getElementById('showKnowledgeGraph').addEventListener('click', function() {
+            const graphContainer = document.getElementById('knowledgeGraph');
+            if (graphContainer.style.display === 'none') {
+                graphContainer.style.display = 'block';
+                // 加载知识图谱数据
+                loadKnowledgeGraph();
+            } else {
+                graphContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // 知识图谱相关函数
+    function loadKnowledgeGraph() {
+        // 获取知识图谱数据
+        fetch('/review/knowledge-graph') // 实际使用中替换为当前图书ID
+            .then(response => response.json())
+            .then(review => {
+                const transformedData = transformData(review.data.list);
+                renderKnowledgeGraph(transformedData);
+            })
+            .catch(error => {
+                console.error('获取知识图谱数据失败:', error);
+            });
+    }
+
+    /**
+     * 将书评数据转换为图谱所需的nodes和links结构
+     */
+    function transformData(reviewList) {
+        const nodes = [];
+        const links = [];
+        const nodeMap = new Map(); // 用于避免重复节点
+
+        reviewList.forEach(review => {
+            // 1. 添加书籍节点（包含封面、标签和简介）
+            if (!nodeMap.has(`book_${review.workId}`)) {
+                const bookNode = {
+                    id: `book_${review.workId}`,
+                    label: review.workName,
+                    type: "book",
+                    properties: {
+                        评分: review.rating,
+                        总评分: review.sumRating,
+                        评分人数: review.sumRatingUserNumber,
+                        标签: review.tags,
+                        简介: review.introduction,
+                        封面: review.coverLink,
+                        作者: review.author,
+                        出版社: review.publisher
+                    }
+                };
+                nodes.push(bookNode);
+                nodeMap.set(bookNode.id, bookNode);
+            }
+
+            // 2. 添加作者节点并建立关联
+            if (!nodeMap.has(`author_${review.author}`)) {
+                const authorNode = {
+                    id: `author_${review.author}`,
+                    label: review.author,
+                    type: "author"
+                };
+                nodes.push(authorNode);
+                nodeMap.set(authorNode.id, authorNode);
+            }
+            // 书籍与作者的关联
+            links.push({
+                source: `book_${review.workId}`,
+                target: `author_${review.author}`,
+                relation: "由...著",
+                value: 1
+            });
+
+            // 3. 添加用户节点并建立关联
+            if (!nodeMap.has(`user_${review.userId}`)) {
+                const userNode = {
+                    id: `user_${review.userId}`,
+                    label: `用户${review.userId}`,
+                    type: "user"
+                };
+                nodes.push(userNode);
+                nodeMap.set(userNode.id, userNode);
+            }
+            // 用户与书籍的关联
+            links.push({
+                source: `user_${review.userId}`,
+                target: `book_${review.workId}`,
+                relation: `评分为${review.rating}星`,
+                value: 1
+            });
+
+            // 4. 添加出版社节点并建立关联
+            if (!nodeMap.has(`publisher_${review.publisher}`)) {
+                const publisherNode = {
+                    id: `publisher_${review.publisher}`,
+                    label: review.publisher,
+                    type: "publisher"
+                };
+                nodes.push(publisherNode);
+                nodeMap.set(publisherNode.id, publisherNode);
+            }
+            // 书籍与出版社的关联
+            links.push({
+                source: `book_${review.workId}`,
+                target: `publisher_${review.publisher}`,
+                relation: "由...出版",
+                value: 1
+            });
+        });
+
+        return { nodes, links };
+    }
+
+    function renderKnowledgeGraph(graphData) {
+        const container = document.getElementById('knowledgeGraph');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const tooltip = document.getElementById('graphTooltip');
+        const tooltipCover = tooltip.querySelector('.tooltip-cover');
+        const tooltipTitle = tooltip.querySelector('.tooltip-title');
+        const tooltipMeta = tooltip.querySelector('.tooltip-meta');
+        const tooltipTags = tooltip.querySelector('.tooltip-tags');
+        const tooltipIntro = tooltip.querySelector('.tooltip-intro');
+
+        // 用于延迟隐藏的计时器
+        let hideTimer;
+
+        // 清除现有图谱
+        d3.select("#knowledgeGraph svg").remove();
+
+        // 创建SVG容器
+        const svg = d3.select("#knowledgeGraph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .call(d3.zoom().on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            }))
+            .append("g")
+            .attr("id", "graphG");
+        const g = svg.append("g");
+
+        // 创建力导向图布局
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(180)) // 增加节点间距，避免拥挤
+            .force("charge", d3.forceManyBody().strength(-400)) // 增强排斥力
+            .force("center", d3.forceCenter(width / 2, height / 2)) // 居中
+            .force("collision", d3.forceCollide().radius(100)); // 避免重叠
+
+        // 绘制连接线
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graphData.links)
+            .enter().append("line")
+            .attr("stroke-width", d => Math.sqrt(d.value))
+            .attr("stroke", "#999")
+            .attr("stroke-opacity", 0.6);
+
+        // 添加连接关系标签
+        const linkLabel = g.append("g")
+            .attr("class", "link-labels")
+            .selectAll("text")
+            .data(graphData.links)
+            .enter().append("text")
+            .text(d => d.relation)
+            .attr("font-size", 12)
+            .attr("fill", "#666");
+
+        // 绘制节点组
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graphData.nodes)
+            .enter().append("g")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        // 节点颜色映射
+        const nodeColors = {
+            "book": "#8e44ad",      // 紫色-书籍
+            "author": "#3498db",    // 蓝色-作者
+            "publisher": "#2ecc71", // 绿色-出版社
+            "user": "#e74c3c"       // 红色-用户
+        };
+
+        // 绘制节点圆圈
+        node.append("circle")
+            .attr("r", d => d.type === "book" ? 30 : 20) // 书籍节点更大一些
+            .attr("fill", d => nodeColors[d.type] || "#95a5a6")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2)
+            .on("mouseover", function(event, d) {
+                // 清除之前的延迟隐藏计时器
+                clearTimeout(hideTimer);
+
+                // 显示 tooltip，针对书籍节点显示更丰富的信息
+                if (d.type === "book" && d.properties) {
+                    // 书籍封面
+                    tooltipCover.src = d.properties.封面 || "";
+                    tooltipCover.alt = d.label + "的封面";
+                    tooltipCover.style.display = "block";
+
+                    // 书籍标题
+                    tooltipTitle.textContent = d.label;
+
+                    // 元数据（作者、出版社、评分）
+                    tooltipMeta.innerHTML = `${d.properties.作者} / ${d.properties.出版社} <br>
+                                           评分: ${d.properties.评分}星 (${d.properties.评分人数}人评价)`;
+
+                    // 标签
+                    tooltipTags.innerHTML = "";
+                    const tags = d.properties.标签 ? d.properties.标签.split(" ") : [];
+                    tags.forEach(tag => {
+                        const tagEl = document.createElement("span");
+                        tagEl.className = "tooltip-tag";
+                        tagEl.textContent = tag;
+                        tooltipTags.appendChild(tagEl);
+                    });
+
+                    // 简介
+                    tooltipIntro.textContent = d.properties.简介 || "暂无简介";
+                } else {
+                    // 其他类型节点的简单信息
+                    tooltipCover.style.display = "none";
+                    tooltipTitle.textContent = d.label;
+                    tooltipMeta.textContent = `类型: ${getTypeName(d.type)}`;
+                    tooltipTags.innerHTML = "";
+                    tooltipIntro.textContent = "";
+                }
+
+                tooltip.style.visibility = 'visible';
+            })
+            .on("mouseout", function() {
+                // 隐藏 tooltip
+                hideTimer = setTimeout(() => {
+                    tooltip.style.visibility = 'hidden';
+                    tooltipCover.style.display = "block"; // 重置封面显示
+                }, 200);
+            });
+
+        // 添加节点标签
+        node.append("text")
+            .text(d => d.label)
+            .attr("x", d => d.type === "book" ? 35 : 25)
+            .attr("y", 5)
+            .attr("font-size", 12)
+            .attr("fill", "#333")
+            .attr("text-anchor", "start");
+
+        // 更新力导向图布局
+        simulation
+            .nodes(graphData.nodes)
+            .on("tick", ticked);
+
+        simulation.force("link")
+            .links(graphData.links);
+
+        // 每帧更新位置
+        function ticked() {
+            // 更新连接线位置
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            // 更新连接标签位置（放在连接线中间）
+            linkLabel
+                .attr("x", d => (d.source.x + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2);
+
+            // 更新节点位置
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        }
+
+        // 拖拽事件 - 开始拖拽
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        // 拖拽事件 - 拖拽中
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        // 拖拽事件 - 结束拖拽
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        // 辅助函数：获取类型中文名称
+        function getTypeName(type) {
+            const typeMap = {
+                "book": "书籍",
+                "author": "作者",
+                "publisher": "出版社",
+                "user": "用户"
+            };
+            return typeMap[type] || type;
+        }
+
+        // 图谱控制按钮事件
+        document.getElementById('resetGraph').addEventListener('click', function() {
+            // 重置缩放和平移
+            loadKnowledgeGraph();
+        });
+
+        document.getElementById('zoomIn').addEventListener('click', function() {
+            d3.select("#knowledgeGraph svg")
+                .transition()
+                .call(d3.zoom().scaleBy, 1.3);
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', function() {
+            d3.select("#knowledgeGraph svg")
+                .transition()
+                .call(d3.zoom().scaleBy, 0.7);
+        });
+    }
+</script>
+</body>
+</html>

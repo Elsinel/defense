@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果 - 书海漫游</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .search-header {
+            background: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .search-results-container {
+            display: flex;
+            gap: 30px;
+            max-width: 1600px; /* 增加整体最大宽度，让内容更宽 */
+            margin: 0 auto; /* 居中显示 */
+            padding: 0 20px; /* 增加左右内边距，在窄屏幕上有更好的边距 */
+        }
+
+        .filters {
+            flex: 0 0 200px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-option {
+            margin-bottom: 8px;
+        }
+
+        .filter-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .filter-option input {
+            margin-right: 8px;
+        }
+
+        .results {
+            flex: 1; /* 让结果区域占据剩余所有空间 */
+        }
+
+        .results-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 调整图书卡片为左侧封面右侧信息的布局，增加宽度 */
+        .book-card {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            width: 100%; /* 占满可用宽度 */
+            max-width: 1200px; /* 设置一个较大的最大宽度 */
+        }
+
+        .book-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-cover {
+            flex: 0 0 160px;
+            background-size: cover;
+            background-position: center;
+            height: 235px;
+        }
+
+        .book-info {
+            flex: 1;
+            padding: 20px 30px; /* 增加右侧内边距，让内容更舒展 */
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .book-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-author {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .book-publisher {
+            color: #888;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .book-meta {
+            margin-bottom: 10px;
+        }
+
+        .book-rating {
+            color: #f39c12;
+            font-size: 0.9rem;
+        }
+
+        .book-tags {
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background-color: #f5f5f5;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .search-pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            gap: 10px;
+        }
+
+        .page-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover {
+            border-color: #8e44ad;
+        }
+
+        .page-btn.active {
+            background: #8e44ad;
+            color: white;
+            border-color: #8e44ad;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px 0;
+            color: #666;
+        }
+
+        /* 增加搜索框与图书展示区域的间隙 */
+        .container + .container {
+            margin-top: 40px; /* 增加两个container之间的间距 */
+        }
+    </style>
+</head>
+<body>
+
+
+<header>
+    <div class="container">
+        <nav class="navbar">
+            <div class="brand">
+                <i class="fas fa-book"></i>
+                <h1>书海漫游</h1>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索书名、作者或关键词...">
+            </div>
+            <div class="nav-links">
+                <a href="/user/home" id="homeLink"><i class="fas fa-home"></i> 首页</a>
+                <a href="/user/favorites" id="favoritesLink"><i class="fas fa-heart"></i> 收藏夹</a>
+                <a href="/user/index" id="logoutLink"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+
+<section class="container" style="margin-top: 30px">
+    <div class="search-results-container">
+        <div class="filters">
+            <div class="filter-section">
+                <h3>分类</h3>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="category" value="fiction"> 小说
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="category" value="non-fiction"> 非虚构
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="category" value="biography"> 传记
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="category" value="science"> 科学
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>评分</h3>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="rating" value="4"> 4星及以上
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="rating" value="3"> 3星及以上
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>出版年份</h3>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="year" value="2020"> 2020年后
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="year" value="2010"> 2010-2019
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <label>
+                        <input type="checkbox" name="year" value="2000"> 2000-2009
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn" style="width:100%;">应用筛选</button>
+        </div>
+
+        <div class="results">
+            <div class="results-grid" id="resultsGrid"></div>
+
+            <div class="search-pagination" id="pagination">
+                <!-- 分页按钮 -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚（与home.html相同） -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        // 页码从1开始，而不是0
+        let currentPage = parseInt(urlParams.get('page')) || 1;
+        const pageSize = 6;
+
+        // 设置搜索框值
+        if (query) {
+            document.getElementById('searchInput').value = query;
+        }
+
+        // 监听搜索框
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const newQuery = this.value.trim();
+                if (newQuery) {
+                    // 搜索时默认跳转到第1页
+                    window.location.href = `/user/search?q=${encodeURIComponent(newQuery)}&page=1`;
+                }
+            }
+        });
+
+        // 加载搜索结果
+        if (query) {
+            loadSearchResults(query, currentPage, pageSize);
+        }
+
+        function loadSearchResults(query, page, size) {
+            // 修正URL中的publishe拼写错误
+            fetch(`/work/page?workName=${encodeURIComponent(query)}&author=${encodeURIComponent(query)}&introduction=${encodeURIComponent(query)}&publisher=${encodeURIComponent(query)}&tags=${encodeURIComponent(query)}&currentPage=${page}&pageSize=${size}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data && data.data.page) {
+                        renderResults(data.data.page.records);
+                        renderPagination(query, page, data.data.page.pages);
+                    } else {
+                        console.error('搜索数据格式错误', data);
+                        // 显示空结果状态
+                        document.getElementById('resultsGrid').innerHTML = '<div class="no-results">未找到相关书籍</div>';
+                        document.getElementById('pagination').innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('搜索失败:', error);
+                    document.getElementById('resultsGrid').innerHTML = '<div class="no-results">搜索失败，请稍后重试</div>';
+                });
+        }
+
+        function renderResults(books) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+
+            // 检查是否有书籍数据
+            if (!books || books.length === 0) {
+                grid.innerHTML = '<div class="no-results">没有找到匹配的书籍</div>';
+                return;
+            }
+
+            books.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.innerHTML = `
+                        <div class="book-cover" style="background-image: url('${book.coverLink || '/images/default-cover.jpg'}')"></div>
+                        <div class="book-info">
+                            <div class="book-title">${escapeHtml(book.workName)}</div>
+                            <div class="book-author">作者: ${escapeHtml(book.author)}</div>
+                            <div class="book-publisher">出版社: ${escapeHtml(book.publisher)}</div>
+                            <div class="book-meta">
+                                <div class="book-rating">${renderRatingStars(book.sumRating)} ${book.sumRating} (${book.sumRatingUserNumber}人评价)</div>
+                            </div>
+                            <div class="book-tags">
+                                ${book.tags ? book.tags.split(' ').slice(0, 5).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('') : ''}
+                            </div>
+                        </div>
+                    `;
+                bookCard.addEventListener('click', () => {
+                    window.location.href = `/user/detail?id=${book.workId}`;
+                });
+                grid.appendChild(bookCard);
+            });
+        }
+
+        function renderPagination(query, currentPage, totalPages) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const currentPageNum = parseInt(currentPage) || 1;
+            const totalPagesNum = parseInt(totalPages) || 1;
+
+            // 上一页按钮 - 当当前页大于1时显示
+            if (currentPageNum > 1) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'page-btn';
+                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> 上一页';
+                prevBtn.addEventListener('click', () => {
+                    window.location.href = `/user/search?q=${encodeURIComponent(query)}&page=${currentPageNum - 1}`;
+                });
+                pagination.appendChild(prevBtn);
+            }
+
+            // 页码按钮 - 显示当前页前后2页
+            const startPage = Math.max(1, currentPageNum - 2);
+            const endPage = Math.min(totalPagesNum, currentPageNum + 2);
+
+            // 添加第一页按钮（如果当前页离第一页较远）
+            if (startPage > 1) {
+                const firstBtn = createPageButton(1, currentPageNum, query);
+                pagination.appendChild(firstBtn);
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+
+            // 添加中间页码
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = createPageButton(i, currentPageNum, query);
+                pagination.appendChild(pageBtn);
+            }
+
+            // 添加最后一页按钮（如果当前页离最后一页较远）
+            if (endPage < totalPagesNum) {
+                if (endPage < totalPagesNum - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+                const lastBtn = createPageButton(totalPagesNum, currentPageNum, query);
+                pagination.appendChild(lastBtn);
+            }
+
+            // 下一页按钮
+            if (currentPageNum < totalPagesNum) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'page-btn';
+                nextBtn.innerHTML = '下一页 <i class="fas fa-chevron-right"></i>';
+                nextBtn.addEventListener('click', () => {
+                    window.location.href = `/user/search?q=${encodeURIComponent(query)}&page=${currentPageNum + 1}`;
+                });
+                pagination.appendChild(nextBtn);
+            }
+        }
+
+        function createPageButton(pageNum, currentPage, query) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `page-btn ${pageNum === currentPage ? 'active' : ''}`;
+            pageBtn.textContent = pageNum;
+            pageBtn.addEventListener('click', () => {
+                if (pageNum !== currentPage) {
+                    window.location.href = `/user/search?q=${encodeURIComponent(query)}&page=${pageNum}`;
+                }
+            });
+            return pageBtn;
+        }
+
+        // 辅助函数：渲染星级评分
+        function renderRatingStars(rating) {
+            const stars = [];
+            const ratingValue = parseFloat(rating) || 0;
+            const fullStars = Math.floor(ratingValue);
+            const hasHalfStar = ratingValue % 1 >= 0.5;
+
+            // 添加满星
+            for (let i = 0; i < fullStars; i++) {
+                stars.push('★');
+            }
+
+            // 添加半星
+            if (hasHalfStar) {
+                stars.push('★');
+            }
+
+            // 添加空星
+            const emptyStars = 5 - stars.length;
+            for (let i = 0; i < emptyStars; i++) {
+                stars.push('☆');
+            }
+
+            return stars.join('');
+        }
+
+        // 防XSS攻击的辅助函数
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    });
+</script>
+</body>
+</html>

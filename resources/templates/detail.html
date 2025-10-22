@@ -1,0 +1,502 @@
+<!-- 文件: detail.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百年孤独 - 书海漫游</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<!-- 头部导航 -->
+<header>
+    <div class="container">
+        <nav class="navbar">
+            <div class="brand">
+                <i class="fas fa-book"></i>
+                <h1>书海漫游</h1>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索书名、作者或关键词...">
+            </div>
+            <div class="nav-links">
+                <a href="/user/home" id="homeLink"><i class="fas fa-home"></i> 首页</a>
+                <a href="/user/favorites" id="favoritesLink"><i class="fas fa-heart"></i> 收藏夹</a>
+                <a href="/user/index" id="logoutLink"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<input type="hidden" id="entityId" th:value="${id}" />
+<!-- 图书详情页 -->
+<section class="detail-page container">
+    <div class="book-detail">
+        <div class="detail-cover" style="background-image: url('https://images.unsplash.com/photo-1495446815901-a7297e633e8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');"></div>
+        <div class="detail-info">
+            <h1 class="detail-title">百年孤独</h1>
+            <div class="detail-author">加西亚·马尔克斯</div>
+            <div class="detail-meta">
+                <div class="detail-rating">★★★★☆ 4.8</div>
+                <div class="detail-pages"><i class="fas fa-book"></i> 360页</div>
+                <div class="detail-year"><i class="fas fa-calendar-alt"></i> 1967年</div>
+            </div>
+            <p class="detail-description">
+                《百年孤独》是哥伦比亚作家加西亚·马尔克斯创作的长篇小说，是其代表作，也是拉丁美洲魔幻现实主义文学的代表作，被誉为"再现拉丁美洲历史社会图景的鸿篇巨著"。作品描写了布恩迪亚家族七代人的传奇故事，以及加勒比海沿岸小镇马孔多的百年兴衰，反映了拉丁美洲一个世纪以来风云变幻的历史。
+            </p>
+            <div class="detail-actions">
+                <button class="btn">立即阅读</button>
+                <button class="btn btn-outline">加入书架</button>
+                <button class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> 收藏</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews-section">
+        <h2 class="section-title">读者评价</h2>
+        <div class="review-form">
+            <h3>发表你的评价</h3>
+            <div class="rating-input">
+                <i class="fas fa-star" data-rating="1"></i>
+                <i class="fas fa-star" data-rating="2"></i>
+                <i class="fas fa-star" data-rating="3"></i>
+                <i class="fas fa-star" data-rating="4"></i>
+                <i class="fas fa-star" data-rating="5"></i>
+            </div>
+            <div class="form-group">
+                <textarea id="reviewText" placeholder="写下你的阅读感受..."></textarea>
+            </div>
+            <button class="btn" id="submitReview">提交评价</button>
+        </div>
+
+        <div class="reviews-list" id="reviewsList">
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-user">书虫小张</div>
+                    <div class="review-rating">★★★★★</div>
+                </div>
+                <div class="review-content">
+                    这是我读过最震撼的小说之一，马尔克斯的想象力令人惊叹。书中每个人物都栩栩如生，整个马孔多的兴衰史就像一部宏大的交响乐，震撼人心。
+                </div>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-user">文学爱好者</div>
+                    <div class="review-rating">★★★★☆</div>
+                </div>
+                <div class="review-content">
+                    魔幻现实主义的巅峰之作！书中描绘的家族命运和孤独主题令人深思。虽然人物众多有些难以记忆，但整体阅读体验非常震撼。
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>关于我们</h3>
+                <p>书海漫游致力于为读者提供最好的阅读体验，发现值得阅读的好书，分享阅读的乐趣。</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-weixin"></i></a>
+                    <a href="#"><i class="fab fa-weibo"></i></a>
+                    <a href="#"><i class="fab fa-qq"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>热门分类</h3>
+                <a href="#">文学小说</a>
+                <a href="#">科幻奇幻</a>
+                <a href="#">历史传记</a>
+                <a href="#">心理自助</a>
+                <a href="#">经济管理</a>
+            </div>
+            <div class="footer-column">
+                <h3>帮助中心</h3>
+                <a href="#">账号问题</a>
+                <a href="#">会员服务</a>
+                <a href="#">阅读指南</a>
+                <a href="#">联系我们</a>
+            </div>
+            <div class="footer-column">
+                <h3>联系我们</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 北京市海淀区中关村大街1号</p>
+                <p><i class="fas fa-phone"></i> 400-123-4567</p>
+                <p><i class="fas fa-envelope"></i> contact@bookvoyage.com</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 书海漫游 BookVoyage. 保留所有权利</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        const bookId = document.getElementById('entityId').value;
+
+        // 调用图书详情接口
+        fetchBookDetail(bookId);
+
+        // 调用评论列表接口
+        fetchReviews(bookId);
+
+        // 绑定收藏按钮事件
+        bindFavoriteEvent(bookId);
+
+        // 绑定评价提交事件
+        bindReviewSubmitEvent(bookId);
+
+        //监听搜索事件
+        loadSearchQuary();
+    });
+
+    /**
+     * 监听搜索结果
+     */
+    function loadSearchQuary(){
+        // 监听搜索框
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const newQuery = this.value.trim();
+                if (newQuery) {
+                    // 搜索时默认跳转到第1页
+                    window.location.href = `/user/search?q=${encodeURIComponent(newQuery)}&page=1`;
+                }
+            }
+        });
+    }
+
+    /**
+     * 调用图书详情接口并渲染
+     * @param {number} bookId - 图书ID
+     */
+    function fetchBookDetail(bookId) {
+        // 模拟接口地址，实际项目替换为真实后端接口
+        const url = `/work/${bookId}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.success && result.code === 20000) {
+                    renderBookDetail(result.data.book);
+                } else {
+                    throw new Error(result.message || '获取图书信息失败');
+                }
+            })
+            .catch(error => {
+                console.error('获取图书详情失败:', error);
+                // 加载失败时使用默认数据
+                console.log('使用默认数据展示');
+            });
+    }
+
+    /**
+     * 渲染图书详情到页面
+     * @param {Object} book - 图书详情数据
+     */
+    function renderBookDetail(book) {
+        // 更新标题
+        document.querySelector('.detail-title').textContent = book.workName || '未知书名';
+
+        // 更新作者
+        document.querySelector('.detail-author').textContent = book.author || '未知作者';
+
+        // 更新评分 - 计算平均分（总评分/评分人数）
+        const averageRating = book.sumRatingUserNumber > 0
+            ? (book.sumRating / book.sumRatingUserNumber).toFixed(1)
+            : 0;
+        document.querySelector('.detail-rating').textContent = `${getStarRating(averageRating)} ${averageRating}`;
+
+        // 更新出版社信息（原页面是页数，这里根据实际数据调整）
+        document.querySelector('.detail-pages').innerHTML = `<i class="fas fa-building"></i> ${book.publisher || '未知出版社'}`;
+
+        // 更新出版时间（原页面是年份，这里使用创建时间）
+        const publishDate = book.createTime ? formatDate(book.createTime) : '未知时间';
+        document.querySelector('.detail-year').innerHTML = `<i class="fas fa-calendar-alt"></i> ${publishDate}`;
+
+        // 更新描述
+        document.querySelector('.detail-description').textContent = book.introduction || '暂无图书介绍';
+
+        // 更新标签显示（新增标签展示）
+        if (book.tags) {
+            const tagsContainer = document.createElement('div');
+            tagsContainer.className = 'detail-tags';
+            const tags = book.tags.split(' '); // 按空格分割标签
+            tags.forEach(tag => {
+                if (tag.trim()) { // 过滤空标签
+                    const tagElement = document.createElement('span');
+                    tagElement.className = 'tag';
+                    tagElement.textContent = tag;
+                    tagsContainer.appendChild(tagElement);
+                }
+            });
+            // 将标签添加到描述下方
+            document.querySelector('.detail-info').insertBefore(tagsContainer, document.querySelector('.detail-actions'));
+        }
+
+        // 更新封面图
+        const coverElement = document.querySelector('.detail-cover');
+        if (book.coverLink) {
+            coverElement.style.backgroundImage = `url('${book.coverLink}')`;
+        }
+
+        // 更新页面标题
+        document.title = `${book.workName} - 书海漫游`;
+    }
+
+
+    /**
+     * 调用评论列表接口并渲染
+     * @param {number} bookId - 图书ID
+     */
+    function fetchReviews(bookId) {
+        // 模拟接口地址，实际项目替换为真实后端接口
+        const url = `/review/${bookId}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                return response.json();
+            })
+            .then(reviews => {
+                if (reviews.success && reviews.code === 20000) {
+                    renderReviews(reviews.data.page.records);
+                } else {
+                    throw new Error(reviews.message || '获取评论失败');
+                }
+            })
+            .catch(error => {
+                console.error('获取评论列表失败:', error);
+                // 保留默认评论
+            });
+    }
+
+    /**
+     * 渲染评论列表到页面
+     * @param {Array} reviews - 评论数组
+     */
+    function renderReviews(reviews) {
+        const reviewsList = document.getElementById('reviewsList');
+        // 清空现有评论（除了默认评论，实际项目可改为清空所有）
+        reviewsList.innerHTML = '';
+
+        if (reviews && reviews.length > 0) {
+            reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+
+                reviewCard.innerHTML = `
+                <div class="review-header">
+                    <div class="review-user">${review.username || '匿名用户'}</div>
+                    <div class="review-rating">${getStarRating(review.rating)}</div>
+                </div>
+                <div class="review-content">
+                    ${review.content || '无评论内容'}
+                </div>
+                <div class="review-time">
+                    ${formatDate(review.createTime) || ''}
+                </div>
+            `;
+
+                reviewsList.appendChild(reviewCard);
+            });
+        } else {
+            // 没有评论时显示提示
+            reviewsList.innerHTML = '<div class="no-reviews">暂无评论，快来发表第一条评论吧！</div>';
+        }
+    }
+
+    /**
+     * 绑定收藏按钮事件
+     */
+    function bindFavoriteEvent(bookId) {
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        let isFavorited = false; // 初始状态
+
+        favoriteBtn.addEventListener('click', function() {
+            // 切换收藏状态
+            isFavorited = !isFavorited;
+
+            // 调用收藏接口
+            const url = `/record_collection/favorite/${bookId}`;
+
+            fetch(url, {
+                method: isFavorited ? 'POST' : 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // 实际项目可能需要传递用户认证信息
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('操作失败');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 更新按钮样式
+                    if (isFavorited) {
+                        favoriteBtn.classList.add('active');
+                        favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> 已收藏';
+                    } else {
+                        favoriteBtn.classList.remove('active');
+                        favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> 收藏';
+                    }
+                    alert(data.message || (isFavorited ? '收藏成功' : '取消收藏成功'));
+                })
+                .catch(error => {
+                    console.error('收藏操作失败:', error);
+                    alert('操作失败，请稍后重试');
+                    // 恢复状态
+                    isFavorited = !isFavorited;
+                });
+        });
+    }
+
+    /**
+     * 绑定评价提交事件
+     */
+    function bindReviewSubmitEvent(bookId) {
+        const stars = document.querySelectorAll('.rating-input .fa-star');
+        const reviewText = document.getElementById('reviewText');
+        const submitBtn = document.getElementById('submitReview');
+        let selectedRating = 0;
+
+        // 星级评分选择
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                highlightStars(rating);
+            });
+
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.getAttribute('data-rating'));
+                highlightStars(selectedRating);
+            });
+        });
+
+        // 鼠标离开星级区域时保持选中状态
+        document.querySelector('.rating-input').addEventListener('mouseout', function() {
+            highlightStars(selectedRating);
+        });
+
+        // 提交评价
+        submitBtn.addEventListener('click', function() {
+            if (selectedRating === 0) {
+                alert('请选择评分');
+                return;
+            }
+
+            if (!reviewText.value.trim()) {
+                alert('请输入评价内容');
+                return;
+            }
+
+            // 调用提交评论接口 / 实际项目从URL获取
+            const url = `/review`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    workId: bookId,
+                    rating: selectedRating,
+                    content: reviewText.value.trim()
+                }),
+                credentials: 'include' // 传递cookie，用于身份验证
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('提交失败');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('评价提交成功！');
+                    // 清空输入
+                    reviewText.value = '';
+                    selectedRating = 0;
+                    highlightStars(0);
+                    // 重新加载评论列表
+                    fetchReviews(bookId);
+                })
+                .catch(error => {
+                    console.error('提交评价失败:', error);
+                    alert('提交失败，请稍后重试');
+                });
+        });
+    }
+
+    /**
+     * 辅助函数：高亮星级
+     * @param {number} rating - 评分
+     */
+    function highlightStars(rating) {
+        const stars = document.querySelectorAll('.rating-input .fa-star');
+        stars.forEach(star => {
+            const starRating = parseInt(star.getAttribute('data-rating'));
+            if (starRating <= rating) {
+                star.classList.add('active');
+                star.style.color = '#ffc107';
+            } else {
+                star.classList.remove('active');
+                star.style.color = '#ccc';
+            }
+        });
+    }
+
+    /**
+     * 辅助函数：将数字评分转换为星级符号
+     * @param {number} rating - 评分
+     * @returns {string} 星级符号字符串
+     */
+    function getStarRating(rating) {
+        if (!rating) return '★★★★★';
+
+        let stars = '';
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+
+        for (let i = 1; i <= 5; i++) {
+            if (i <= fullStars) {
+                stars += '★';
+            } else if (i === fullStars + 1 && hasHalfStar) {
+                stars += '★'; // 这里简化为全星，实际项目可改为半星
+            } else {
+                stars += '☆';
+            }
+        }
+        return stars;
+    }
+
+    /**
+     * 辅助函数：格式化日期
+     * @param {string} dateString - 日期字符串
+     * @returns {string} 格式化后的日期
+     */
+    function formatDate(dateString) {
+        if (!dateString) return '';
+
+        const date = new Date(dateString);
+        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    }
+</script>
+</body>
+</html>

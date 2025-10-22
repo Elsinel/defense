@@ -1,0 +1,102 @@
+<!-- 文件: index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>书海漫游 - 登录</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<!-- 登录页面 -->
+<section class="login-page">
+  <div class="login-container">
+    <div class="logo">
+      <i class="fas fa-book-open"></i>
+      <h1>书海漫游</h1>
+    </div>
+    <form class="login-form" id="loginForm">
+      <div class="form-group">
+        <label for="username">账号</label>
+        <input type="text" id="username" placeholder="请输入账号" required>
+      </div>
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input type="password" id="password" placeholder="请输入密码" required>
+      </div>
+      <button type="submit" class="btn">登录</button>
+    </form>
+    <div class="login-footer">
+      <p>还没有账号？<a href="/user/toreg">立即注册</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 在login.html中 -->
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // 显示加载状态
+    const submitBtn = document.querySelector('#loginForm .btn');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 登录中...';
+    submitBtn.disabled = true;
+
+    // 发送AJAX请求
+    fetch('/user/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                if(data.data.role===1){
+                  window.location.href = '/user/admin';
+                }else{
+                  window.location.href = '/user/home';
+                }
+              } else {
+                // 显示错误信息
+                showErrorMessage(data.message);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              showErrorMessage('登录请求失败，请重试');
+              submitBtn.innerHTML = originalBtnText;
+              submitBtn.disabled = false;
+            });
+  });
+
+  function showErrorMessage(message) {
+    // 移除现有的错误信息
+    const existingError = document.querySelector('.error-message');
+    if (existingError) existingError.remove();
+
+    // 创建错误信息元素
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+
+    // 在登录表单前插入错误信息
+    const loginForm = document.getElementById('loginForm');
+    loginForm.parentNode.insertBefore(errorDiv, loginForm);
+
+    // 5秒后自动移除错误信息
+    setTimeout(() => {
+      errorDiv.remove();
+    }, 5000);
+  }
+</script>
+</body>
+</html>

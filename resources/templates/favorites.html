@@ -1,0 +1,287 @@
+<!-- 文件: favorites.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏夹 - 书海漫游</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* 添加移除按钮的样式 */
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+
+        .book-card {
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .book-card:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 0;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .loading i {
+            font-size: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<!-- 头部导航 -->
+<header>
+    <div class="container">
+        <nav class="navbar">
+            <div class="brand">
+                <i class="fas fa-book"></i>
+                <h1>书海漫游</h1>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索书名、作者或关键词...">
+            </div>
+            <div class="nav-links">
+                <a href="/user/home" id="homeLink"><i class="fas fa-home"></i> 首页</a>
+                <a href="/user/favorites" id="favoritesLink"><i class="fas fa-heart"></i> 收藏夹</a>
+                <a href="/user/index" id="logoutLink"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<!-- 收藏夹页面 -->
+<section class="favorites-page container">
+    <div class="favorites-header">
+        <h2 class="section-title">我的收藏夹</h2>
+    </div>
+
+    <div class="loading" id="loading">
+        <i class="fas fa-circle-notch"></i>
+        <p>加载中...</p>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="far fa-heart"></i>
+        <h3>您的收藏夹还是空的</h3>
+        <p>快去发现并收藏喜欢的书籍吧</p>
+        <a href="home.html" class="btn">浏览图书</a>
+    </div>
+
+    <div class="favorites-grid" id="favoritesGrid">
+        <!-- 动态内容将在这里生成 -->
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>关于我们</h3>
+                <p>书海漫游致力于为读者提供最好的阅读体验，发现值得阅读的好书，分享阅读的乐趣。</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-weixin"></i></a>
+                    <a href="#"><i class="fab fa-weibo"></i></a>
+                    <a href="#"><i class="fab fa-qq"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>热门分类</h3>
+                <a href="#">文学小说</a>
+                <a href="#">科幻奇幻</a>
+                <a href="#">历史传记</a>
+                <a href="#">心理自助</a>
+                <a href="#">经济管理</a>
+            </div>
+            <div class="footer-column">
+                <h3>帮助中心</h3>
+                <a href="#">账号问题</a>
+                <a href="#">会员服务</a>
+                <a href="#">阅读指南</a>
+                <a href="#">联系我们</a>
+            </div>
+            <div class="footer-column">
+                <h3>联系我们</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 北京市海淀区中关村大街1号</p>
+                <p><i class="fas fa-phone"></i> 400-123-4567</p>
+                <p><i class="fas fa-envelope"></i> contact@bookvoyage.com</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 书海漫游 BookVoyage. 保留所有权利</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取收藏的图书数据
+        fetchFavoriteBooks();
+        //监听搜索事件
+        loadSearchQuary();
+    });
+
+
+    /**
+     * 监听搜索结果
+     */
+    function loadSearchQuary(){
+        // 监听搜索框
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const newQuery = this.value.trim();
+                if (newQuery) {
+                    // 搜索时默认跳转到第1页
+                    window.location.href = `/user/search?q=${encodeURIComponent(newQuery)}&page=1`;
+                }
+            }
+        });
+    }
+
+
+    // 获取收藏的图书数据
+    function fetchFavoriteBooks() {
+        fetch('/record_collection/work')
+            .then(response => response.json())
+            .then(data => {
+                renderFavoriteBooks(data);
+            })
+            .catch(error => {
+                console.error('获取收藏失败:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('获取收藏失败，请稍后重试');
+            });
+    }
+
+    // 渲染收藏的图书
+    function renderFavoriteBooks(data) {
+        const favoritesGrid = document.getElementById('favoritesGrid');
+        const loading = document.getElementById('loading');
+        const emptyState = document.getElementById('emptyState');
+
+        // 隐藏加载状态
+        loading.style.display = 'none';
+
+        // 检查数据是否成功返回
+        if (!data.success || !data.data || !data.data.page || !data.data.page.records) {
+            alert('数据加载失败');
+            return;
+        }
+
+        const books = data.data.page.records;
+
+        // 检查是否有收藏的图书
+        if (books.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        // 清空网格
+        favoritesGrid.innerHTML = '';
+
+        // 遍历图书数据，创建图书卡片
+        books.forEach(book => {
+            const bookCard = document.createElement('div');
+            bookCard.className = 'book-card';
+            bookCard.onclick = () => {
+                // 跳转到图书详情页，携带workId参数
+                location.href = `/user/detail?id=${book.workId}`;
+            };
+
+            // 构建星级评分显示
+            let ratingStars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= book.sumRating) {
+                    ratingStars += '★';
+                } else {
+                    ratingStars += '☆';
+                }
+            }
+
+            bookCard.innerHTML = `
+            <button class="remove-btn" data-workid="${book.workId}" onclick="event.stopPropagation(); removeFavorite(${book.workId})">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="book-cover" style="background-image: url('${book.coverLink}');"></div>
+            <div class="book-info">
+                <div class="book-title">${book.workName}</div>
+                <div class="book-author">${book.author}</div>
+                <div class="book-meta">
+                    <div class="book-rating">${ratingStars} ${book.sumRating}</div>
+                    <div class="book-publisher">${book.publisher}</div>
+                </div>
+            </div>
+        `;
+
+            favoritesGrid.appendChild(bookCard);
+        });
+    }
+
+    // 移除收藏
+    function removeFavorite(workId) {
+        if (confirm('确定要从收藏夹中移除这本书吗？')) {
+            fetch(`/record_collection/delete/${workId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 移除成功，重新加载收藏列表
+                    fetchFavoriteBooks();
+                } else {
+                    alert('移除失败: ' + (data.message || '未知错误'));
+                }
+            })
+            .catch(error => {
+                console.error('移除收藏失败:', error);
+                alert('移除收藏失败，请稍后重试');
+            });
+
+        }
+    }
+</script>
+</body>
+</html>

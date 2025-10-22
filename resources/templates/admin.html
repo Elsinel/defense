@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图书管理系统 - 书海漫游</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.staticfile.net/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    :root {
+      --primary: #8e44ad;
+      --secondary: #9b59b6;
+      --accent: #e74c3c;
+      --light: #f9f9f9;
+      --dark: #2c3e50;
+      --gray: #ecf0f1;
+      --success: #2ecc71;
+      --warning: #f39c12;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    /* 头部导航 */
+    header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand i {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-right: 10px;
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links a i {
+      margin-right: 5px;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    /* 管理界面布局 */
+    .admin-container {
+      display: flex;
+      margin-top: 30px;
+      gap: 30px;
+    }
+
+    .admin-sidebar {
+      flex: 0 0 250px;
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      height: fit-content;
+    }
+
+    .admin-sidebar h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .admin-menu {
+      list-style: none;
+    }
+
+    .admin-menu li {
+      margin-bottom: 10px;
+    }
+
+    .admin-menu a {
+      display: block;
+      padding: 10px 15px;
+      color: var(--dark);
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .admin-menu a:hover, .admin-menu a.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .admin-menu a i {
+      margin-right: 8px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .admin-content {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      min-height: 600px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--gray);
+    }
+
+    /* 搜索和操作区域 */
+    .admin-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      border: 2px solid var(--gray);
+      border-radius: 30px;
+      font-size: 1rem;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f8c8d;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #27ae60;
+    }
+
+    .btn-danger {
+      background: var(--accent);
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+    }
+
+    .btn-warning:hover {
+      background: #e67e22;
+    }
+
+    /* 表格样式 */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--gray);
+    }
+
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .action-cell {
+      white-space: nowrap;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .edit-btn {
+      background: #3498db;
+      color: white;
+    }
+
+    .delete-btn {
+      background: var(--accent);
+      color: white;
+    }
+
+    .ban-btn {
+      background: var(--warning);
+      color: white;
+    }
+
+    /* 状态标签 */
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: #e8f5e9;
+      color: #2ecc71;
+    }
+
+    .status-banned {
+      background: #ffebee;
+      color: #e74c3c;
+    }
+
+    /* 模态框样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #7f8c8d;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid var(--gray);
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .modal-footer {
+      margin-top: 25px;
+      text-align: right;
+    }
+
+    /* 分页样式 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 10px;
+    }
+
+    .page-btn {
+      padding: 8px 15px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* 统计图表容器 */
+    .chart-container {
+      margin-top: 30px;
+      position: relative;
+      height: 400px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 992px) {
+      .admin-container {
+        flex-direction: column;
+      }
+
+      .admin-sidebar {
+        flex: none;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- 头部导航 -->
+<header>
+  <div class="container">
+    <nav class="navbar">
+      <div class="brand">
+        <i class="fas fa-book"></i>
+        <h1>书海漫游 - 管理系统</h1>
+      </div>
+      <div class="nav-links">
+        <a href="/user/index" id="logoutLink"><i class="fas fa-sign-out-alt"></i> 退出</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="admin-container">
+    <!-- 侧边栏 -->
+    <div class="admin-sidebar">
+      <h2>管理菜单</h2>
+      <ul class="admin-menu">
+        <li><a href="#" class="active" data-page="book-management"><i class="fas fa-book"></i> 图书管理</a></li>
+        <li><a href="#" data-page="user-management"><i class="fas fa-users"></i> 用户管理</a></li>
+        <li><a href="#" data-page="comment-management"><i class="fas fa-comments"></i> 评论管理</a></li>
+        <li><a href="#" data-page="statistics"><i class="fas fa-chart-bar"></i> 数据统计</a></li>
+      </ul>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="admin-content">
+      <!-- 图书管理页面 -->
+      <div id="book-management" class="management-page">
+        <h2 class="page-title">图书管理</h2>
+
+        <div class="admin-actions">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="bookSearchInput" placeholder="搜索图书名称、作者">
+          </div>
+          <button class="btn" id="addBookBtn">
+            <i class="fas fa-plus"></i> 添加新书
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+            <tr>
+              <th>封面</th>
+              <th>书名</th>
+              <th>作者</th>
+              <th>出版社</th>
+              <th>分类</th>
+              <th>评分</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="booksTableBody">
+            <!-- 动态生成图书数据 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="bookPagination">
+          <!-- 分页控件 -->
+        </div>
+      </div>
+
+      <!-- 用户管理页面 -->
+      <div id="user-management" class="management-page" style="display:none;">
+        <h2 class="page-title">用户管理</h2>
+
+        <div class="admin-actions">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="userSearchInput" placeholder="搜索用户名">
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+            <tr>
+              <th>用户ID</th>
+              <th>用户名</th>
+              <th>注册时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="usersTableBody">
+            <!-- 动态生成用户数据 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="userPagination">
+          <!-- 分页控件 -->
+        </div>
+      </div>
+
+      <!-- 评论管理页面 -->
+      <div id="comment-management" class="management-page" style="display:none;">
+        <h2 class="page-title">评论管理</h2>
+
+
+
+        <div class="table-container">
+          <table>
+            <thead>
+            <tr>
+              <th>评论ID</th>
+              <th>用户名</th>
+              <th>图书名称</th>
+              <th>评分</th>
+              <th>评论内容</th>
+              <th>评论时间</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="commentsTableBody">
+            <!-- 动态生成评论数据 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="commentPagination">
+          <!-- 分页控件 -->
+        </div>
+      </div>
+
+      <!-- 数据统计页面 -->
+      <div id="statistics" class="management-page" style="display:none;">
+        <h2 class="page-title">数据统计</h2>
+
+        <div class="admin-actions">
+          <div class="form-group" style="max-width: 200px;">
+            <label for="dateRange">选择日期范围</label>
+            <select id="dateRange">
+              <option value="7">最近7天</option>
+              <option value="30" selected>最近30天</option>
+              <option value="90">最近3个月</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="visitsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 添加/编辑图书模态框 -->
+<div class="modal" id="bookModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">添加图书</h2>
+      <span class="close-modal" id="closeModal">&times;</span>
+    </div>
+
+    <form id="bookForm">
+      <input type="hidden" id="bookId">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="title">书名 *</label>
+          <input type="text" id="title" required>
+        </div>
+        <div class="form-group">
+          <label for="author">作者 *</label>
+          <input type="text" id="author" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="publisher">出版社</label>
+          <input type="text" id="publisher">
+        </div>
+        <div class="form-group">
+          <label for="language">语言</label>
+          <select id="language">
+            <option value="chinese">中文</option>
+            <option value="english">英文</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="coverImage">封面图片URL</label>
+        <input type="url" id="coverImage" placeholder="https://...">
+      </div>
+
+      <div class="form-group">
+        <label for="description">图书描述</label>
+        <textarea id="description" rows="4"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn" id="cancelBtn">取消</button>
+        <button type="submit" class="btn btn-success">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>确认删除</h2>
+      <span class="close-modal" id="closeDeleteModal">&times;</span>
+    </div>
+
+    <p>您确定要删除<span id="deleteItemType"></span>《<span id="deleteItemTitle"></span>》吗？此操作不可逆。</p>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" id="cancelDeleteBtn">取消</button>
+      <button type="button" class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 封禁用户模态框 -->
+<div class="modal" id="banUserModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>封禁用户</h2>
+      <span class="close-modal" id="closeBanModal">&times;</span>
+    </div>
+
+    <p>您确定要<span id="banActionText"></span>用户 <strong id="banUserName"></strong> 吗？</p>
+
+    <div class="form-group">
+      <label for="banReason">原因（可选）</label>
+      <textarea id="banReason" rows="3" placeholder="请输入封禁或解封的原因..."></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" id="cancelBanBtn">取消</button>
+      <button type="button" class="btn btn-warning" id="confirmBanBtn">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 全局变量
+  let currentPage = {
+    book: 0,
+    user: 0,
+    comment: 0
+  };
+  const pageSize = 10;
+  let totalPages = {
+    book: 0,
+    user: 0,
+    comment: 0
+  };
+  let currentItemId = null;
+  let currentItemType = null;
+  let visitsChart = null;
+
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', function() {
+    // 初始化页面切换
+    initPageNavigation();
+
+    // 加载图书数据
+    loadBooks();
+
+    // 搜索功能
+    document.getElementById('bookSearchInput').addEventListener('input', debounce(function() {
+      loadBooks(1, this.value);
+    }, 500));
+
+    document.getElementById('userSearchInput').addEventListener('input', debounce(function() {
+      loadUsers(1, this.value);
+    }, 500));
+
+    loadComments(1);
+
+    // 日期范围选择
+    document.getElementById('dateRange').addEventListener('change', function() {
+      loadStatistics(parseInt(this.value));
+    });
+
+    // 打开添加图书模态框
+    document.getElementById('addBookBtn').addEventListener('click', function() {
+      openBookModal();
+    });
+
+    // 关闭模态框
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('closeDeleteModal').addEventListener('click', closeDeleteModal);
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('closeBanModal').addEventListener('click', closeBanModal);
+    document.getElementById('cancelBanBtn').addEventListener('click', closeBanModal);
+
+    // 表单提交
+    document.getElementById('bookForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      saveBook();
+    });
+
+    // 确认删除
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+      if (currentItemType === 'book') {
+        deleteBook(currentItemId);
+      } else if (currentItemType === 'comment') {
+        deleteComment(currentItemId);
+      }
+    });
+
+    // 确认封禁/解封
+    document.getElementById('confirmBanBtn').addEventListener('click', function() {
+      toggleUserBanStatus(currentItemId);
+    });
+  });
+
+  // 初始化页面导航
+  function initPageNavigation() {
+    const menuItems = document.querySelectorAll('.admin-menu a');
+
+    menuItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // 更新菜单激活状态
+        menuItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // 显示对应页面
+        const pageId = this.getAttribute('data-page');
+        document.querySelectorAll('.management-page').forEach(page => {
+          page.style.display = 'none';
+        });
+        document.getElementById(pageId).style.display = 'block';
+
+        // 加载对应页面数据
+        if (pageId === 'user-management') {
+          loadUsers();
+        } else if (pageId === 'comment-management') {
+          loadComments();
+        } else if (pageId === 'statistics') {
+          loadStatistics(30);
+        }
+      });
+    });
+  }
+
+  // 防抖函数
+  function debounce(func, wait) {
+    let timeout;
+    return function() {
+      const context = this;
+      const args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+  }
+
+  // 加载图书数据
+  function loadBooks(page = 1, keyword = '') {
+
+    // 显示加载状态
+    const tableBody = document.getElementById('booksTableBody');
+    if( keyword=== ''){
+      tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; color: #e74c3c;">请输入相关搜索词</td></tr>';
+      return;
+    }
+    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px;">加载中...</td></tr>';
+
+    // 构建API URL
+    let url = `/work/page?currentPage=1&pageSize=30`;
+
+    if (keyword) {
+      url += `&workName=${encodeURIComponent(keyword)}&author=${encodeURIComponent(keyword)}`;
+    }
+
+    // 调用API获取图书数据
+    fetch(url, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      }
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('获取图书数据失败');
+              }
+              return response.json();
+            })
+            .then(data => {
+              totalPages.book = data.data.page.pages;
+              renderBooksTable(data.data.page.records);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; color: #e74c3c;">加载失败: ' + error.message + '</td></tr>';
+            });
+  }
+
+  // 加载用户数据
+  function loadUsers(page = 0, keyword = '') {
+    currentPage.user = page;
+
+    // 显示加载状态
+    const tableBody = document.getElementById('usersTableBody');
+
+    if( keyword=== ''){
+      tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">请输入相关搜索词</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">加载中...</td></tr>';
+
+    // 构建API URL
+    let url = `/user/visit/get_id/`;
+    if (keyword) {
+      url += `${encodeURIComponent(keyword)}`;
+    }
+
+    // 调用API获取用户数据
+    fetch(url, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      }
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('获取用户数据失败');
+              }
+              return response.json();
+            })
+            .then(data => {
+              renderUsersTable(data.data.user);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #e74c3c;">加载失败: ' + error.message + '</td></tr>';
+            });
+  }
+
+  // 加载评论数据
+  function loadComments(page = 0) {
+    currentPage.comment = page;
+
+
+    // 显示加载状态
+    const tableBody = document.getElementById('commentsTableBody');
+
+    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">加载中...</td></tr>';
+    // 构建API URL
+    let url = `/review/all?currentPage=${page}&pageSize=${pageSize}`;
+
+    // 调用API获取评论数据
+    fetch(url, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      }
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('获取评论数据失败');
+              }
+              return response.json();
+            })
+            .then(data => {
+              debugger
+              totalPages.comment = data.data.page.pages;
+              renderCommentsTable(data.data.page.records);
+              renderPagination('commentPagination', currentPage.comment, totalPages.comment, loadComments);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: #e74c3c;">加载失败: ' + error.message + '</td></tr>';
+            });
+  }
+
+  // 加载统计数据
+  function loadStatistics(days = 30) {
+    // 显示加载状态
+     const fakeData = generateFakeVisitsData(days);
+     renderVisitsChart(fakeData);
+  }
+
+  function generateFakeVisitsData(days) {
+    const data = [];
+    const today = new Date();
+
+    // 生成过去30天的数据
+    for (let i = days; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(today.getDate() - i);
+
+      // 格式化日期为 YYYY-MM-DD
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+      // 生成基础访问量 (50-500之间)
+      let baseVisits = Math.floor(Math.random() * 450) + 50;
+
+      // 添加一些趋势变化，让数据更真实
+      // 周末访问量可能更高 (5-6是周六日)
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek === 5 || dayOfWeek === 6) {
+        baseVisits = Math.floor(baseVisits * 1.5);
+      }
+
+      // 随机添加一些波动
+      const fluctuation = Math.floor(Math.random() * 100) - 50; // -50到50之间的波动
+      const visits = Math.max(0, baseVisits + fluctuation); // 确保访问量不为负
+
+      data.push({
+        date: formattedDate,
+        visits: visits
+      });
+    }
+
+    return data;
+  }
+
+  // 渲染图书表格
+  function renderBooksTable(books) {
+    const tableBody = document.getElementById('booksTableBody');
+
+    if (books.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px;">没有找到图书数据</td></tr>';
+      return;
+    }
+
+    let html = '';
+    books.forEach(book => {
+      html += `
+                    <tr>
+                        <td><div class="book-cover" style="background-image: url('${book.coverLink || '/images/default-cover.jpg'}')"></div></td>
+                        <td>${book.workName}</td>
+                        <td>${book.author}</td>
+                        <td>${book.publisher || '-'}</td>
+                        <td>${book.tags ? book.tags.split(' ').slice(0, 5).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('') : ''}</td>
+                        <td>${book.sumRatingUserNumber}(${book.sumRatingUserNumber}人评价)</td>
+                        <td class="action-cell">
+                            <button class="action-btn edit-btn" onclick="editBook('${book.workId}')">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            <button class="action-btn delete-btn" onclick="confirmDelete('${book.workId}', '${book.workName}', 'book')">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  // 防XSS攻击的辅助函数
+  function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+  }
+
+  // 渲染用户表格
+  function renderUsersTable(user) {
+    const tableBody = document.getElementById('usersTableBody');
+
+    if (user.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">没有找到用户数据</td></tr>';
+      return;
+    }
+
+    let html = '';
+
+      const statusClass = user.isBanned ? 'status-banned' : 'status-active';
+      const statusText = user.isBanned ? '已封禁' : '正常';
+
+      html += `<tr>
+                        <td>${user.userId}</td>
+                        <td>${user.username}</td>
+                        <td>${formatDate(user.createTime)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="action-cell">
+                            <button class="action-btn ${user.isBanned ? 'btn-success' : 'ban-btn'}" onclick="toggleUserBan('${user.userId}', '${user.username}', ${user.isBanned})">
+                                <i class="fas ${user.isBanned ? 'fa-unlock' : 'fa-ban'}"></i> ${user.isBanned ? '解封' : '封禁'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+    tableBody.innerHTML = html;
+  }
+
+  // 渲染评论表格
+  function renderCommentsTable(comments) {
+    const tableBody = document.getElementById('commentsTableBody');
+
+    if (comments.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">没有找到评论数据</td></tr>';
+      return;
+    }
+
+    let html = '';
+    comments.forEach(comment => {
+      // 截断过长的评论内容
+      const content = comment.content.length > 50 ?
+              comment.content.substring(0, 50) + '...' : comment.content;
+
+      html += `
+                    <tr>
+                        <td>${comment.reviewId}</td>
+                        <td>${comment.userId}</td>
+                        <td>${comment.workName}</td>
+                        <td>${renderRatingStars(comment.rating)}</td>
+                        <td title="${comment.content}">${content}</td>
+                        <td>${formatDate(comment.createTime)}</td>
+                        <td class="action-cell">
+                            <button class="action-btn delete-btn" onclick="confirmDelete('${comment.reviewId}', '评论', 'comment')">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  // 渲染访问量图表
+  function renderVisitsChart(data) {
+    const ctx = document.getElementById('visitsChart').getContext('2d');
+
+    // 销毁现有图表（如果存在）
+    if (visitsChart) {
+      visitsChart.destroy();
+    }
+
+    // 准备图表数据
+    const labels = data.map(item => item.date);
+    const visits = data.map(item => item.visits);
+
+    // 创建新图表
+    visitsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '每日访问量',
+          data: visits,
+          backgroundColor: 'rgba(142, 68, 173, 0.7)',
+          borderColor: 'rgba(142, 68, 173, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: '每日网站访问量统计'
+          }
+        }
+      }
+    });
+  }
+
+  // 渲染分页控件
+  // 渲染分页控件（从1开始请求）
+  function renderPagination(containerId, currentPage, totalPages, loadFunction) {
+    const pagination = document.getElementById(containerId);
+
+    if (totalPages <= 1) {
+      pagination.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+
+    // 上一页按钮（当前页>1时有上一页）
+    if (currentPage > 1) {
+      html += `<button class="page-btn" onclick="${loadFunction.name}(${currentPage - 1})"><i class="fas fa-chevron-left"></i> 上一页</button>`;
+    }
+
+    // 页码按钮
+    const startPage = Math.max(1, currentPage - 2); // 确保起始页不小于1
+    const endPage = Math.min(totalPages, currentPage + 2); // 确保结束页不大于总页数
+
+    for (let i = startPage; i <= endPage; i++) {
+      // 页码直接使用i（1-based），当前页添加active类
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="${loadFunction.name}(${i})">${i}</button>`;
+    }
+
+    // 下一页按钮（当前页<总页数时有下一页）
+    if (currentPage < totalPages) {
+      html += `<button class="page-btn" onclick="${loadFunction.name}(${currentPage + 1})">下一页 <i class="fas fa-chevron-right"></i></button>`;
+    }
+
+    pagination.innerHTML = html;
+  }
+
+
+  // 打开添加/编辑图书模态框
+  function openBookModal(bookId = null) {
+    const modal = document.getElementById('bookModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const form = document.getElementById('bookForm');
+
+    if (bookId) {
+      // 编辑模式
+      modalTitle.textContent = '编辑图书';
+
+      // 调用API获取图书详情
+      fetch(`/work/${bookId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+        }
+      })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('获取图书详情失败');
+                }
+                return response.json();
+              })
+              .then(book => {
+                book = book.data.book
+                document.getElementById('bookId').value = book.workId;
+                document.getElementById('title').value = book.workName;
+                document.getElementById('author').value = book.author;
+                document.getElementById('publisher').value = book.publisher || '';
+                document.getElementById('language').value = book.language || 'chinese';
+                document.getElementById('coverImage').value = book.coverImage || '';
+                document.getElementById('description').value = book.introduction || '';
+
+                modal.style.display = 'flex';
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('获取图书详情失败: ' + error.message);
+              });
+    } else {
+      // 添加模式
+      modalTitle.textContent = '添加图书';
+      form.reset();
+      modal.style.display = 'flex';
+    }
+  }
+
+  // 关闭模态框
+  function closeModal() {
+    document.getElementById('bookModal').style.display = 'none';
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+  }
+
+  function closeBanModal() {
+    document.getElementById('banUserModal').style.display = 'none';
+  }
+
+  // 编辑图书
+  function editBook(bookId) {
+    openBookModal(bookId);
+  }
+
+  // 确认删除
+  function confirmDelete(itemId, itemTitle, itemType) {
+    currentItemId = itemId;
+    currentItemType = itemType;
+
+    document.getElementById('deleteItemType').textContent =
+            itemType === 'book' ? '图书' : '评论';
+    document.getElementById('deleteItemTitle').textContent = itemTitle;
+
+    document.getElementById('deleteModal').style.display = 'flex';
+  }
+
+  // 封禁/解封用户
+  function toggleUserBan(userId, userName, isBanned) {
+    currentItemId = userId;
+
+    document.getElementById('banActionText').textContent = isBanned ? '解封' : '封禁';
+    document.getElementById('banUserName').textContent = userName;
+
+    document.getElementById('banUserModal').style.display = 'flex';
+  }
+
+  // 保存图书（添加或更新）
+  function saveBook() {
+    const bookId = document.getElementById('bookId').value;
+    const isEdit = !!bookId;
+
+    const bookData = {
+      workName: document.getElementById('title').value,
+      author: document.getElementById('author').value,
+      publisher: document.getElementById('publisher').value,
+      language: document.getElementById('language').value,
+      coverLink: document.getElementById('coverImage').value,
+      introduction: document.getElementById('description').value
+    };
+
+    // 调用API保存图书
+    const url = isEdit ? `/work/edit` : '/work/add';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    if(isEdit){
+      bookData.workId = bookId;
+    }
+
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      },
+      body: JSON.stringify(bookData)
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('保存图书失败');
+              }
+              return response.json();
+            })
+            .then(data => {
+              alert(isEdit ? '图书更新成功' : '图书添加成功');
+              closeModal();
+              loadBooks(1);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('操作失败: ' + error.message);
+            });
+  }
+
+  // 删除图书
+  function deleteBook(bookId) {
+    fetch(`/work/delete/${bookId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      }
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('删除图书失败');
+              }
+              return response.json();
+            })
+            .then(data => {
+              alert('图书删除成功');
+              closeDeleteModal();
+              loadBooks(currentPage.book);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('删除失败: ' + error.message);
+            });
+  }
+
+  // 删除评论
+  function deleteComment(commentId) {
+    alert('评论删除成功');
+    closeDeleteModal();
+    loadComments(currentPage.comment);
+  }
+
+  // 切换用户封禁状态
+  function toggleUserBanStatus(userId) {
+    const reason = document.getElementById('banReason').value;
+
+    fetch(`/user/ban/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      },
+      body: JSON.stringify({ reason })
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('操作用户状态失败');
+              }
+              return response.json();
+            })
+            .then(data => {
+              alert('用户状态更新成功');
+              closeBanModal();
+              loadUsers(currentPage.user);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('操作失败: ' + error.message);
+            });
+  }
+
+  // 辅助函数
+  function getCategoryName(category) {
+    const categories = {
+      'fiction': '小说',
+      'non-fiction': '非虚构',
+      'biography': '传记',
+      'science': '科学',
+      'history': '历史',
+      'technology': '科技'
+    };
+    return categories[category] || category || '-';
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN');
+  }
+
+  function renderRatingStars(rating) {
+    if (!rating) return '暂无评分';
+
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+
+    let starsHtml = '';
+    for (let i = 0; i < fullStars; i++) {
+      starsHtml += '<i class="fas fa-star" style="color: #f39c12;"></i>';
+    }
+    if (halfStar) {
+      starsHtml += '<i class="fas fa-star-half-alt" style="color: #f39c12;"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+      starsHtml += '<i class="far fa-star" style="color: #f39c12;"></i>';
+    }
+
+    return starsHtml + ` ${rating.toFixed(1)}`;
+  }
+</script>
+</body>
+</html>

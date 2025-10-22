@@ -1,0 +1,59 @@
+# ====================
+# 基础配置
+# ====================
+server:
+  port: 8080
+
+# ====================
+# 视图层配置
+# ====================
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false  # 开发环境建议关闭缓存
+
+  # ====================
+  # 静态资源配置
+  # ====================
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+
+  # ====================
+  # 文件上传配置
+  # ====================
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+
+  # ====================
+  # 数据源配置
+  # ====================
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/literary_works_recommendation_platform
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver  # 建议显式声明驱动类
+
+  # ====================
+  # Redis配置
+  # ====================
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    password: 123456
+
+# ====================
+# 算法服务配置
+# ====================
+algorithm-backend:
+  url: http://localhost:5000/
+
+
+token:
+  timeout: 336 #  336 hours = 14 days

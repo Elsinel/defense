@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>书海漫游 - 注册</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .register-page {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #8e44ad, #3498db);
+    }
+
+    .register-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 450px;
+      padding: 40px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ecf0f1;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      border-color: #8e44ad;
+      outline: none;
+    }
+
+    .password-strength {
+      height: 5px;
+      background: #ecf0f1;
+      border-radius: 3px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      width: 0;
+      background: #e74c3c;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .register-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .register-footer a {
+      color: #8e44ad;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .alert {
+      padding: 12px 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .alert-danger {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+  </style>
+</head>
+<body>
+<!-- 注册页面 -->
+<section class="register-page">
+  <div class="register-container">
+    <div class="logo text-center">
+      <i class="fas fa-book-open" style="font-size: 3rem; color: #8e44ad;"></i>
+      <h1 style="font-size: 2rem; margin: 15px 0 25px;">创建账户</h1>
+    </div>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <input type="text" id="username" placeholder="设置您的用户名" required>
+      </div>
+
+
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input type="password" id="password" placeholder="设置您的密码" required>
+        <div class="password-strength">
+          <div class="password-strength-bar" id="passwordStrengthBar"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">确认密码</label>
+        <input type="password" id="confirmPassword" placeholder="再次输入密码" required>
+      </div>
+
+      <div class="form-group">
+        <label for="intro">自我介绍</label>
+        <input type="text" id="intro" placeholder="输入您的简介" required>
+      </div>
+
+      <button type="submit" class="btn" style="background: #8e44ad; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: 600; width: 100%;">注册</button>
+    </form>
+
+    <div class="register-footer">
+      <p>已有账户？<a href="/user/index">立即登录</a></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 密码强度检测
+  document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const strengthBar = document.getElementById('passwordStrengthBar');
+    let strength = 0;
+
+    if (password.length > 5) strength += 25;
+    if (password.length > 8) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[0-9]/.test(password)) strength += 25;
+
+    strengthBar.style.width = strength + '%';
+
+    if (strength < 50) {
+      strengthBar.style.background = '#e74c3c';
+    } else if (strength < 75) {
+      strengthBar.style.background = '#f39c12';
+    } else {
+      strengthBar.style.background = '#2ecc71';
+    }
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const intro = document.getElementById('intro').value;
+
+    // 显示加载状态
+    const submitBtn = document.querySelector('#registerForm .btn');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 注册中...';
+    submitBtn.disabled = true;
+
+
+    // 发送AJAX请求
+    fetch('/user/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&intro=${encodeURIComponent(intro)}`
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                showErrorMessage("注册成功");
+              } else {
+                // 显示错误信息
+                showErrorMessage(data.message);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              showErrorMessage('登录请求失败，请重试');
+              submitBtn.innerHTML = originalBtnText;
+              submitBtn.disabled = false;
+            });
+  });
+
+  function showErrorMessage(message) {
+    // 移除现有的错误信息
+    const existingError = document.querySelector('.error-message');
+    if (existingError) existingError.remove();
+
+    // 创建错误信息元素
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+
+    // 在登录表单前插入错误信息
+    const loginForm = document.getElementById('registerForm');
+    loginForm.parentNode.insertBefore(errorDiv, loginForm);
+
+    // 5秒后自动移除错误信息
+    setTimeout(() => {
+      errorDiv.remove();
+    }, 5000);
+  }
+
+</script>
+</body>
+</html>
