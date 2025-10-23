@@ -238,7 +238,7 @@ if __name__ == "__main__":
     neo4j_password = "123456"
 
     # 示例CSV文件路径
-    csv_file = "D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\\raw_data\Dou Ban Books Dataset\\neo4j-demo.csv"
+    csv_file = ".\\neo4j-demo.csv"
 
     try:
         # 创建知识图谱实例并连接到Neo4j

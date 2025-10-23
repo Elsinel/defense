@@ -236,7 +236,7 @@ class AdaptiveBookRecommender(torch.nn.Module):
     def __init__(self, num_users, num_authors, num_publishers,
                  text_dim=768, image_feat_dim=1000,
                  user_emb_dim=64, author_emb_dim=32, publisher_emb_dim=32,
-                 hidden_dim=256, resnet_weights_path="D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_cache\\resnet18-f37072fd.pth",
+                 hidden_dim=256, resnet_weights_path="\model_cache\\resnet18-f37072fd.pth",
                  use_text=True,
                  use_image=True,
                  use_attention=True
@@ -490,7 +490,7 @@ def train_model(model, train_loader, val_loader, epochs=10, lr=0.001, optimizer_
 
 
 # 保存模型
-def save_model(model, path='D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_and_train\\test\pytorch_model'):
+def save_model(model, path='\model_and_train\pytorch_model'):
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -499,14 +499,14 @@ def save_model(model, path='D:\project_py\literary-works-recommendation-algorith
 
 
 # 加载模型
-def load_model(model, path='D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_and_train\\test\pytorch_model'):
+def load_model(model, path='\model_and_train\\test\pytorch_model'):
     model.load_state_dict(torch.load(os.path.join(path, 'model.pth')))
     print(f'模型已从 {path} 目录加载')
     return model
 
 
 # 主训练函数
-def train_main(data_path='D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\\raw_data\Dou Ban Books Dataset\\bookinfo_train.csv',
+def train_main(data_path='.\\bookinfo_train.csv',
                image_dir='downloaded_images',
                precompute_features=False,
                optimizer_name='adam',
@@ -578,7 +578,7 @@ def train_main(data_path='D:\project_py\literary-works-recommendation-algorithm-
 def incremental_train_model(model, new_data_df, image_dir, precompute_features=False):
     """增量训练模型"""
     # 加载现有数据集
-    df = pd.read_csv('D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\\raw_data\Dou Ban Books Dataset\\bookinfo_train.csv')
+    df = pd.read_csv('.\\bookinfo_train.csv')
     # 合并新数据
     df = pd.concat([df, new_data_df], ignore_index=True)
 
@@ -1014,7 +1014,7 @@ def recommend(model, dataset, user_id, top_n=10):
 def cold_start_recommend(top_n=10):
     """冷启动推荐，基于书籍的流行度和平均评分"""
     # 加载数据
-    df = pd.read_csv('D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\\raw_data\Dou Ban Books Dataset\\book_ratings.csv')
+    df = pd.read_csv('.\\book_ratings.csv')
 
     # 计算书籍流行度 (基于评分数量和平均评分)
     book_popularity = df.groupby('title').agg({
@@ -1056,7 +1056,7 @@ def cold_start_recommend(top_n=10):
     return recommendations
 
 
-def cold_start_recommend1(top_n=10, file_path='../../raw_data/Dou Ban Books Dataset/bookinfo_train.csv'):
+def cold_start_recommend1(top_n=10, file_path='../../bookinfo_train.csv'):
     """冷启动推荐，基于书籍的流行度和平均评分（优化版）"""
     try:
         # 加载数据，指定rating为数值型，处理可能的空值
@@ -1191,8 +1191,8 @@ def evaluate_top_users(model, dataset, test_df, top_n_users=50, k=10):
     }
 
 
-def main_minimal_evaluation(model_path, encoder_dir='D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_and_train\\test\encoders',
-                            data_path='D:\\project_py\\literary-works-recommendation-algorithm-master\\literary-works-recommendation-algorithm-master\\raw_data\\Dou Ban Books Dataset\\bookinfo_train.csv',
+def main_minimal_evaluation(model_path, encoder_dir='\model_and_train\encoders',
+                            data_path='.\\bookinfo_train.csv',
                             image_dir='downloaded_images'):
     """带进度显示的极简评估主函数"""
     # 1. 加载数据（带进度提示）
@@ -1247,7 +1247,7 @@ def main_minimal_evaluation(model_path, encoder_dir='D:\project_py\literary-work
 
 if __name__ == '__main__':
     # train_main()
-    # model_path = 'D:\\project_py\\literary-works-recommendation-algorithm-master\\literary-works-recommendation-algorithm-master\\model_and_train\\test\\pytorch_model'
+    # model_path = 'model_and_train\pytorch_model'
     #main_minimal_evaluation(model_path)
     # 使用SGD优化器和StepLR学习率调度
     # model, dataset = train_main(optimizer_name='sgd', scheduler_type='steplr', lr=0.01, step_size=3, gamma=0.5)
@@ -1300,7 +1300,7 @@ if __name__ == '__main__':
     # print(cold_start_recommend1())
 
     # 加载数据
-    # data_path='../../raw_data/Dou Ban Books Dataset/bookinfo_info.csv'
+    # data_path='../../bookinfo_info.csv'
     # df = pd.read_csv(data_path)
     # image_dir='downloaded_images'
     # print(f'成功加载数据，共 {len(df)} 条记录')

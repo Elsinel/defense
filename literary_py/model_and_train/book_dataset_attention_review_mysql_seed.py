@@ -228,7 +228,7 @@ class AdaptiveBookRecommender(torch.nn.Module):
     def __init__(self, num_users, num_authors, num_publishers,
                  text_dim=768, image_feat_dim=1000,
                  user_emb_dim=64, author_emb_dim=32, publisher_emb_dim=32,
-                 hidden_dim=256, resnet_weights_path="D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_cache\\resnet18-f37072fd.pth"):
+                 hidden_dim=256, resnet_weights_path="\model_cache\\resnet18-f37072fd.pth"):
         super().__init__()
 
         # 用户嵌入
@@ -444,7 +444,7 @@ def train_model(model, train_loader, val_loader, epochs=10, lr=0.001, optimizer_
 
 
 # 保存模型
-def save_model(model, path='D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_and_train\\test\pytorch_model'):
+def save_model(model, path='\model_and_train\pytorch_model'):
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -453,7 +453,7 @@ def save_model(model, path='D:\project_py\literary-works-recommendation-algorith
 
 
 # 加载模型
-def load_model(model, path='D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_and_train\\test\pytorch_model'):
+def load_model(model, path='\model_and_train\pytorch_model'):
     model.load_state_dict(torch.load(os.path.join(path, 'model.pth')))
     print(f'模型已从 {path} 目录加载')
     return model
@@ -494,7 +494,7 @@ def train_main(image_dir='downloaded_images', precompute_features=False, optimiz
                         scheduler_type=scheduler_type, step_size=step_size, gamma=gamma)
 
     # 保存模型
-    model_save_path = f'D:\project_py\literary-works-recommendation-algorithm-master\literary-works-recommendation-algorithm-master\model_and_train\\test\pytorch_model_seed_{seed}'
+    model_save_path = f'\model_and_train\pytorch_model_seed_{seed}'
     save_model(model, path=model_save_path)  # 用带种子的路径
 
     print(f'种子{seed}训练完成，模型保存至：{model_save_path}')
@@ -959,7 +959,7 @@ if __name__ == '__main__':
     # print(cold_start_recommend1())
 
     # 加载数据
-    # data_path='../../raw_data/Dou Ban Books Dataset/bookinfo_info.csv'
+    # data_path='../../bookinfo_info.csv'
     # df = pd.read_csv(data_path)
     # image_dir='downloaded_images'
     # print(f'成功加载数据，共 {len(df)} 条记录')
